@@ -1,0 +1,157 @@
+name: CI and Release
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Read and validate version
+        id: version
+        run: |
+          version="$(node scripts/read-version.mjs)"
+          if [[ ! "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Invalid APP_VERSION: $version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Show Node version
+        run: node --version
+      - name: Run regression and release checks
+        run: npm test
+
+  release:
+    name: Publish new app version
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: deadlinedeck-release-${{ needs.test.outputs.version }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+
+      - name: Read and validate version
+        id: version
+        run: |
+          version="$(node scripts/read-version.mjs)"
+          if [[ ! "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Invalid APP_VERSION: $version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Check for an existing release
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          tag="v$VERSION"
+          latest_tag="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName 2>/dev/null || true)"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            is_draft="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)"
+            if [[ "$is_draft" == "true" ]]; then
+              if [[ -n "$latest_tag" ]]; then
+                node scripts/assert-newer-version.mjs "$VERSION" "$latest_tag"
+              fi
+              echo "state=draft" >> "$GITHUB_OUTPUT"
+            else
+              if [[ -n "$latest_tag" && "$latest_tag" != "$tag" ]]; then
+                echo "APP_VERSION $VERSION is not the latest stable release ($latest_tag)" >&2
+                exit 1
+              fi
+              assets="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '[.assets[].name] | sort | join(",")')"
+              expected="DeadlineDeck.js,DeadlineDeck.txt,DeadlineDeck.zip,INSTALL-DeadlineDeck.txt,SHA256SUMS.txt,latest.json"
+              if [[ "$assets" != "$expected" ]]; then
+                echo "Release $tag exists but its asset set is incomplete: $assets" >&2
+                exit 1
+              fi
+              existing_dir="$RUNNER_TEMP/deadlinedeck-existing-release"
+              mkdir -p "$existing_dir"
+              gh release download "$tag" \
+                --repo "$GITHUB_REPOSITORY" \
+                --pattern DeadlineDeck.js \
+                --pattern DeadlineDeck.txt \
+                --pattern INSTALL-DeadlineDeck.txt \
+                --dir "$existing_dir"
+              cmp DeadlineDeck.js "$existing_dir/DeadlineDeck.js"
+              cmp DeadlineDeck.txt "$existing_dir/DeadlineDeck.txt"
+              cmp INSTALL-DeadlineDeck.txt "$existing_dir/INSTALL-DeadlineDeck.txt"
+              echo "state=published" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            if [[ -n "$latest_tag" ]]; then
+              node scripts/assert-newer-version.mjs "$VERSION" "$latest_tag"
+            fi
+            echo "state=missing" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build release assets
+        if: steps.existing.outputs.state != 'published'
+        env:
+          RELEASE_TAG: v${{ steps.version.outputs.version }}
+        run: npm run package
+
+      - name: Stage and publish stable release
+        if: steps.existing.outputs.state != 'published'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          RELEASE_STATE: ${{ steps.existing.outputs.state }}
+        run: |
+          tag="v$VERSION"
+          assets=(
+            dist/DeadlineDeck.zip
+            dist/DeadlineDeck.js
+            dist/DeadlineDeck.txt
+            dist/INSTALL-DeadlineDeck.txt
+            dist/latest.json
+            dist/SHA256SUMS.txt
+          )
+          if [[ "$RELEASE_STATE" == "missing" ]]; then
+            gh release create "$tag" "${assets[@]}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "DeadlineDeck $VERSION" \
+              --generate-notes \
+              --draft
+          elif [[ "$RELEASE_STATE" == "draft" ]]; then
+            gh release upload "$tag" "${assets[@]}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --clobber
+          else
+            echo "Unexpected release state: $RELEASE_STATE" >&2
+            exit 1
+          fi
+          uploaded="$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json assets --jq '[.assets[].name] | sort | join(",")')"
+          expected="DeadlineDeck.js,DeadlineDeck.txt,DeadlineDeck.zip,INSTALL-DeadlineDeck.txt,SHA256SUMS.txt,latest.json"
+          if [[ "$uploaded" != "$expected" ]]; then
+            echo "Draft $tag has an incomplete asset set: $uploaded" >&2
+            exit 1
+          fi
+          gh release edit "$tag" \
+            --repo "$GITHUB_REPOSITORY" \
+            --draft=false

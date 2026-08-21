@@ -1,0 +1,13 @@
+{
+  "name": "deadlinedeck",
+  "version": "1.7.0",
+  "private": true,
+  "description": "Academic conference deadline widgets for Scriptable",
+  "scripts": {
+    "test": "node scripts/run-tests.mjs",
+    "package": "bash scripts/package-release.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

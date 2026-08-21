@@ -1,0 +1,84 @@
+DEADLINEDECK — INSTALLATION
+
+1. Download DeadlineDeck.zip from the latest GitHub Release:
+   https://github.com/seppia978/DeadlineDeck/releases/latest
+   Use the asset named DeadlineDeck.zip, not GitHub's automatic “Source code”.
+2. Extract DeadlineDeck.zip in the Files app.
+3. Touch and hold DeadlineDeck.js, then choose Move.
+4. Move it to exactly: iCloud Drive > Scriptable.
+5. Open Scriptable and run the new script named DeadlineDeck.
+6. The menu must display “DeadlineDeck · AI + Security”.
+7. Choose Select Conferences. Each tap saves the selection immediately.
+   It is normal for the script to finish when you tap Done; your choices have
+   already been saved.
+
+HOME SCREEN WIDGET
+
+1. Touch and hold a Scriptable widget, then choose Edit Widget.
+2. Under Script, select DeadlineDeck.
+
+The small widget shows 1 deadline, medium shows 3, and large shows 6.
+To change the list length, edit MEDIUM_WIDGET_MAX_N_ROWS (medium) and
+MAX_N_ROWS (large) near the top of DeadlineDeck.js.
+
+Colored two-letter badges identify each conference's primary research area.
+For example: ML = Machine Learning, CV = Computer Vision, NL = Natural
+Language Processing, SC = Security, and SP = Speech & Signal Processing.
+
+Deadline rows show static amber bands when the next displayed deadline is
+within 14 days and static red bands when it is within 7 days. In the small
+widget, the bands cover the whole card.
+Edit WARNING_DEADLINE_DAYS and URGENT_DEADLINE_DAYS near the top of the script
+to change these thresholds.
+Use the preview actions inside DeadlineDeck before returning to the Home Screen.
+
+Each deadline also shows its venue location (city, state/region when supplied,
+and country). If the organizers have not announced it yet, DeadlineDeck shows
+“Location TBD” instead of guessing.
+
+FULL LIST AND HOME SCREEN PAGES
+
+- “All Deadlines” opens the complete scrollable list.
+- Tapping the medium/large widget header, or the small widget, opens that list.
+- To swipe through later pages without leaving the Home Screen, add several
+  copies of the same widget. Set Parameter to 1, 2, 3… in Edit Widget.
+- Drag equal-sized widgets on top of one another to create a stack, then swipe
+  vertically. Each widget displays its page number, such as 1/5 or 2/5.
+- Turn off Smart Rotate to keep the pages in order.
+
+DATA UPDATES
+
+“Refresh Data Now” checks the ai-deadlines and sec-deadlines feeds. If a feed
+is unavailable, DeadlineDeck keeps its last valid cache and bundled fallbacks
+for ICLR, USENIX Security, IEEE S&P, NDSS, and ACM CCS.
+
+The live offset shows “+” before a deadline and “−” after it. In addition to
+the normal four-hour refresh, DeadlineDeck asks iOS to refresh at the 14-day
+and 7-day urgency thresholds and shortly after each milestone. iOS controls the
+exact refresh time, so a short delay is still possible.
+
+APP UPDATE ALERTS
+
+DeadlineDeck checks the public GitHub Releases channel at most once every six
+hours while the app or widget is already running. The check requires no GitHub
+account or token and DeadlineDeck sends no analytics. A normal HTTPS request is
+still made to GitHub.
+
+When a newer stable release appears, DeadlineDeck schedules one local Scriptable
+notification for that version. Tapping it opens the release notes and download;
+DeadlineDeck never downloads or installs code automatically. Timing depends on
+when iOS next runs the widget and on Scriptable notification permissions.
+
+Use “Check for App Updates” in the DeadlineDeck menu for an immediate manual
+check. To disable automatic checks, set CHECK_FOR_APP_UPDATES = false near the
+top of DeadlineDeck.js.
+
+GitHub users can also choose Watch > Custom > Releases in the repository for a
+second, opt-in release notification channel.
+
+UPGRADING
+
+Download the new DeadlineDeck.zip and replace only DeadlineDeck.js in
+iCloud Drive > Scriptable. Conference selections and cached data remain in
+Scriptable's local library. If you edited the row limits, urgency thresholds, or
+CHECK_FOR_APP_UPDATES in the old script, reapply those edits to the new file.
