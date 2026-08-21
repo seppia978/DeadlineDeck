@@ -30,7 +30,7 @@ globalThis.__deadlineDeckUrgencyTestAPI = {
   warningDays: typeof WARNING_DEADLINE_DAYS === "undefined" ? null : WARNING_DEADLINE_DAYS,
   urgentDays: typeof URGENT_DEADLINE_DAYS === "undefined" ? null : URGENT_DEADLINE_DAYS,
   deadlineUrgency: typeof deadlineUrgency === "function" ? deadlineUrgency : null,
-  urgencyBandGradient: typeof urgencyBandGradient === "function" ? urgencyBandGradient : null,
+  urgencyBackgroundColor: typeof urgencyBackgroundColor === "function" ? urgencyBackgroundColor : null,
   addConferenceRow,
   makeWidget,
   nextWidgetRefreshDate,
@@ -257,7 +257,7 @@ await test("deadlineUrgency classifies TBD, warning, urgent, and grace-window mi
   assert.equal(api.deadlineUrgency(displayConference(NOW_MS - 61 * 1000), NOW_MS), "normal", "the tint clears after the milestone grace window")
 })
 
-await test("medium and large rows receive distinct static warning and urgent bands", () => {
+await test("medium and large rows receive uniform warning and urgent backgrounds", () => {
   for (const family of ["medium", "large"]) {
     const neutral = renderedConferenceRow(NOW_MS + 20 * DAY_MS, family)
     const warning = renderedConferenceRow(NOW_MS + 10 * DAY_MS, family)
@@ -266,19 +266,13 @@ await test("medium and large rows receive distinct static warning and urgent ban
 
     assert.equal(backgroundSignature(neutral), "", `${family} neutral rows keep the normal background`)
     assert.equal(backgroundSignature(tbd), "", `${family} TBD rows keep the normal background`)
-    assert.ok(backgroundSignature(warning), `${family} warning rows need amber background bands`)
-    assert.ok(backgroundSignature(urgent), `${family} urgent rows need red background bands`)
+    assert.ok(backgroundSignature(warning), `${family} warning rows need a uniform amber background`)
+    assert.ok(backgroundSignature(urgent), `${family} urgent rows need a uniform red background`)
     assert.notEqual(backgroundSignature(warning), backgroundSignature(urgent))
-    assert.equal(warning.backgroundColor, undefined, `${family} warning rows use a gradient rather than a flat tint`)
-    assert.equal(urgent.backgroundColor, undefined, `${family} urgent rows use a gradient rather than a flat tint`)
-    assert.ok(warning.backgroundGradient.colors.length >= 20, `${family} warning bands repeat across the row`)
-    assert.equal(warning.backgroundGradient.colors.length, warning.backgroundGradient.locations.length)
-    assert.deepEqual(
-      [warning.backgroundGradient.startPoint.x, warning.backgroundGradient.startPoint.y,
-        warning.backgroundGradient.endPoint.x, warning.backgroundGradient.endPoint.y],
-      [0, 0, 1, 1],
-      `${family} urgency bands run diagonally`,
-    )
+    assert.ok(warning.backgroundColor, `${family} warning rows use a flat tint`)
+    assert.ok(urgent.backgroundColor, `${family} urgent rows use a flat tint`)
+    assert.equal(warning.backgroundGradient, undefined, `${family} warning rows do not use a gradient`)
+    assert.equal(urgent.backgroundGradient, undefined, `${family} urgent rows do not use a gradient`)
     assert.ok(Number(warning.cornerRadius) > 0, `${family} warning tint should have rounded corners`)
     assert.ok(Number(urgent.cornerRadius) > 0, `${family} urgent tint should have rounded corners`)
     assert.deepEqual(warning.padding && [warning.padding[0], warning.padding[2]], [0, 0])
@@ -286,7 +280,7 @@ await test("medium and large rows receive distinct static warning and urgent ban
   }
 })
 
-await test("the small widget covers the whole card with static urgency bands", async () => {
+await test("the small widget covers the whole card with a uniform urgency background", async () => {
   const neutral = await smallWidget(NOW_MS + 20 * DAY_MS)
   const warning = await smallWidget(NOW_MS + 10 * DAY_MS)
   const urgent = await smallWidget(NOW_MS + 3 * DAY_MS)
@@ -300,26 +294,23 @@ await test("the small widget covers the whole card with static urgency bands", a
   assert.notEqual(warningBackground, neutralBackground)
   assert.notEqual(urgentBackground, neutralBackground)
   assert.notEqual(urgentBackground, warningBackground)
-  assert.ok(warning.backgroundGradient.colors.length >= 20, "small warning bands repeat across the card")
-  assert.ok(urgent.backgroundGradient.colors.length >= 20, "small urgent bands repeat across the card")
-  assert.deepEqual(
-    [urgent.backgroundGradient.startPoint.x, urgent.backgroundGradient.startPoint.y,
-      urgent.backgroundGradient.endPoint.x, urgent.backgroundGradient.endPoint.y],
-    [0, 0, 1, 1],
-    "small-widget urgency bands run diagonally",
-  )
+  assert.equal(warning.backgroundGradient, null, "small warning widgets do not install the base gradient")
+  assert.equal(urgent.backgroundGradient, null, "small urgent widgets do not install the base gradient")
+  assert.ok(warning.backgroundColor, "small warning widgets use a flat tint")
+  assert.ok(urgent.backgroundColor, "small urgent widgets use a flat tint")
 })
 
-await test("band colors remain amber for warning and red for urgent", () => {
-  const warning = api.urgencyBandGradient("warning", false)
-  const urgent = api.urgencyBandGradient("urgent", false)
+await test("uniform colors remain amber for warning and red for urgent", () => {
+  const warning = api.urgencyBackgroundColor("warning", false)
+  const urgent = api.urgencyBackgroundColor("urgent", false)
   assert.ok(warning)
   assert.ok(urgent)
-  assert.match(colorSignature(warning.colors[0]), /F59E0B/i)
-  assert.match(colorSignature(warning.colors[0]), /FBBF24/i)
-  assert.match(colorSignature(urgent.colors[0]), /DC2626/i)
-  assert.match(colorSignature(urgent.colors[0]), /FB7185/i)
-  assert.equal(api.urgencyBandGradient("normal", false), null)
+  assert.match(colorSignature(warning), /F59E0B/i)
+  assert.match(colorSignature(warning), /FBBF24/i)
+  assert.match(colorSignature(urgent), /DC2626/i)
+  assert.match(colorSignature(urgent), /FB7185/i)
+  assert.equal(api.urgencyBackgroundColor("normal", false), null)
+  assert.doesNotMatch(source, /urgencyBandGradient|bandCount/)
 })
 
 await test("refresh scheduling catches the exact future 14-day warning crossing", () => {

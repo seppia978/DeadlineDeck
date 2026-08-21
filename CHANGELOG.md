@@ -2,6 +2,13 @@
 
 All notable DeadlineDeck changes are documented here. Releases follow Semantic Versioning.
 
+## [1.7.1] - 2026-08-21
+
+### Changed
+
+- Replaced the alternating diagonal urgency bands with uniform amber and red backgrounds.
+- Kept the 14-day warning and 7-day urgent thresholds, refresh timing, and row layout unchanged.
+
 ## [1.7.0] - 2026-08-21
 
 First public GitHub release.
@@ -22,4 +29,5 @@ First public GitHub release.
 - Signed live deadline offsets use `+` before and `−` after a milestone.
 - Conference-source caches remain independent so one failed feed cannot erase the other.
 
+[1.7.1]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.1
 [1.7.0]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.0

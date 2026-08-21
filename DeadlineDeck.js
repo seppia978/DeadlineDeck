@@ -64,9 +64,9 @@ const CONFERENCE_AREA_BY_SERIES = {
   siggraph: "CG", acmmm: "MM",
 }
 
-const APP_VERSION = "1.7.0"
+const APP_VERSION = "1.7.1"
 const SETTINGS_SCHEMA_VERSION = 3
-const BUILD_LABEL = "DeadlineDeck 1.7 · GitHub Release Alerts"
+const BUILD_LABEL = "DeadlineDeck 1.7 · Solid Highlights"
 const CACHE_SCHEMA_VERSION = 2
 const CACHE_METADATA_VERSION = 2
 const AI_DATA_URL = "https://aideadlines.nauen-it.de/data/conferences.json"
@@ -464,7 +464,7 @@ async function presentInfo(dataResult) {
     `The small widget shows the next deadline, medium shows up to ${widgetMaxRows("medium")}, and large shows up to ${widgetMaxRows("large")}.`,
     "To change these limits, edit MEDIUM_WIDGET_MAX_N_ROWS and MAX_N_ROWS at the top of the script.",
     "Colored two-letter badges show the primary research area: ML, CV, NL, SP, RO, DM, SC, PR, CR, and others. SC means Security; SP means Speech & Signal Processing.",
-    `Rows show static amber bands within ${configuredDeadlineDays(WARNING_DEADLINE_DAYS, 14)} days of the next displayed deadline and static red bands within ${configuredDeadlineDays(URGENT_DEADLINE_DAYS, 7)} days. Edit WARNING_DEADLINE_DAYS and URGENT_DEADLINE_DAYS at the top of the script to change these thresholds.`,
+    `Rows use a uniform amber background within ${configuredDeadlineDays(WARNING_DEADLINE_DAYS, 14)} days of the next displayed deadline and a uniform red background within ${configuredDeadlineDays(URGENT_DEADLINE_DAYS, 7)} days. Edit WARNING_DEADLINE_DAYS and URGENT_DEADLINE_DAYS at the top of the script to change these thresholds.`,
     "For later pages, stack identical widgets and set Parameter to 1, 2, 3… The header displays the page number. Tap the header to open the complete scrollable list.",
     "",
     "Each deadline includes the venue location when announced; otherwise it clearly shows Location TBD. For AoE deadlines, DeadlineDeck shows both the official date and your iPhone’s local time. Tap a row to open the conference website.",
@@ -794,51 +794,23 @@ function configuredDeadlineDays(value, fallback) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback
 }
 
-function urgencyBandGradient(level, strong) {
+function urgencyBackgroundColor(level, strong) {
   const style = DEADLINE_URGENCY_COLORS[level]
   if (!style) return null
 
-  const highLightAlpha = strong ? (level === "urgent" ? 0.42 : 0.38) : (level === "urgent" ? 0.22 : 0.18)
-  const lowLightAlpha = strong ? (level === "urgent" ? 0.19 : 0.17) : (level === "urgent" ? 0.10 : 0.09)
-  const highDarkAlpha = strong ? (level === "urgent" ? 0.47 : 0.42) : (level === "urgent" ? 0.28 : 0.23)
-  const lowDarkAlpha = strong ? (level === "urgent" ? 0.23 : 0.21) : (level === "urgent" ? 0.13 : 0.11)
-  const high = Color.dynamic(
-    new Color(style.light, highLightAlpha),
-    new Color(style.dark, highDarkAlpha)
+  const lightAlpha = strong ? (level === "urgent" ? 0.42 : 0.38) : (level === "urgent" ? 0.22 : 0.18)
+  const darkAlpha = strong ? (level === "urgent" ? 0.47 : 0.42) : (level === "urgent" ? 0.28 : 0.23)
+  return Color.dynamic(
+    new Color(style.light, lightAlpha),
+    new Color(style.dark, darkAlpha)
   )
-  const low = Color.dynamic(
-    new Color(style.light, lowLightAlpha),
-    new Color(style.dark, lowDarkAlpha)
-  )
-
-  // A repeating gradient gives the urgency treatment visible diagonal bands
-  // without relying on animation, timers, or a generated background image.
-  const gradient = new LinearGradient()
-  if (typeof Point === "function") {
-    gradient.startPoint = new Point(0, 0)
-    gradient.endPoint = new Point(1, 1)
-  }
-  const bandCount = 6
-  const locations = []
-  const colors = []
-  for (let index = 0; index < bandCount; index++) {
-    const start = index / bandCount
-    const width = 1 / bandCount
-    locations.push(start, start + width * 0.36, start + width * 0.44, start + width * 0.92)
-    colors.push(high, high, low, low)
-  }
-  locations.push(1)
-  colors.push(high)
-  gradient.locations = locations
-  gradient.colors = colors
-  return gradient
 }
 
 function applyDeadlineUrgencyBackground(row, conference) {
   const level = deadlineUrgency(conference)
-  const bands = urgencyBandGradient(level, false)
-  if (!bands) return level
-  row.backgroundGradient = bands
+  const background = urgencyBackgroundColor(level, false)
+  if (!background) return level
+  row.backgroundColor = background
   row.cornerRadius = 6
   if (typeof row.setPadding === "function") row.setPadding(0, 3, 0, 3)
   return level
@@ -846,10 +818,20 @@ function applyDeadlineUrgencyBackground(row, conference) {
 
 function applySmallWidgetUrgencyBackground(widget, conference) {
   const level = deadlineUrgency(conference)
-  const bands = urgencyBandGradient(level, true)
-  if (!bands) return level
-  widget.backgroundGradient = bands
+  const background = urgencyBackgroundColor(level, true)
+  if (!background) return level
+  widget.backgroundColor = background
   return level
+}
+
+function applyDefaultWidgetBackground(widget) {
+  const gradient = new LinearGradient()
+  gradient.locations = [0, 1]
+  gradient.colors = [
+    Color.dynamic(new Color("F8FAFF"), new Color("121827")),
+    Color.dynamic(new Color("EEF3FF"), new Color("0B1020")),
+  ]
+  widget.backgroundGradient = gradient
 }
 
 function conferenceArea(conference) {
@@ -951,13 +933,6 @@ function runningScriptURL(action) {
 async function makeWidget(dataResult, settings, family, requestedPage) {
   const widget = new ListWidget()
   widget.setPadding(12, 14, 10, 14)
-  const gradient = new LinearGradient()
-  gradient.locations = [0, 1]
-  gradient.colors = [
-    Color.dynamic(new Color("F8FAFF"), new Color("121827")),
-    Color.dynamic(new Color("EEF3FF"), new Color("0B1020")),
-  ]
-  widget.backgroundGradient = gradient
   const sortedUpcoming = selectedUpcoming(dataResult, settings)
   widget.refreshAfterDate = nextWidgetRefreshDate(sortedUpcoming)
   const pageSize = widgetMaxRows(family)
@@ -967,11 +942,13 @@ async function makeWidget(dataResult, settings, family, requestedPage) {
   const upcoming = sortedUpcoming.slice(start, start + pageSize)
 
   if (family === "small") {
-    applySmallWidgetUrgencyBackground(widget, upcoming[0] || null)
+    const level = applySmallWidgetUrgencyBackground(widget, upcoming[0] || null)
+    if (level === "normal") applyDefaultWidgetBackground(widget)
     addSmallWidget(widget, dataResult, settings, upcoming[0] || null, page, totalPages)
     return widget
   }
 
+  applyDefaultWidgetBackground(widget)
   addHeader(widget, dataResult, upcoming.length, page, totalPages)
 
   if (!settings.selectedSeries.length) {

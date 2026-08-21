@@ -160,7 +160,7 @@ function queueManifest(version, overrides = {}) {
 }
 
 await test("app and settings versions remain separate", () => {
-  assert.equal(api.appVersion, "1.7.0")
+  assert.equal(api.appVersion, "1.7.1")
   assert.equal(api.settingsSchemaVersion, 3)
   assert.equal(api.checksEnabled, true)
   assert.equal(api.checkInterval, 6 * 60 * 60 * 1000)
@@ -171,6 +171,7 @@ await test("semantic versions are parsed and compared numerically", () => {
   assert.equal(api.parseSemver("1.7.0").version, "1.7.0")
   assert.equal(api.compareSemver("1.10.0", "1.9.9"), 1)
   assert.equal(api.compareSemver("2.0.0", "2.0.0"), 0)
+  assert.equal(api.compareSemver("1.7.1", "1.7.0"), 1, "the solid-highlight patch is newer than the first public release")
   assert.equal(api.compareSemver("1.6.9", "1.7.0"), -1)
   for (const invalid of ["v1.7.0", "1.7", "1.7.0-beta", "01.7.0", "1.7.-1", ""]) {
     assert.equal(api.parseSemver(invalid), null)
@@ -210,7 +211,7 @@ await test("an implausibly distant future lease is discarded", async () => {
     latestRelease: null,
     checkLeaseUntil: nowMs + 365 * 24 * 60 * 60 * 1000,
   }))
-  queueManifest("1.7.0")
+  queueManifest("1.7.1")
   const result = await api.checkForAppUpdate(false, false)
   assert.equal(result.status, "current")
   assert.equal(api.loadUpdateState().checkLeaseUntil, 0)
@@ -227,7 +228,7 @@ await test("a newer stable release is fetched without a token and notified exact
   assert.equal(MockRequest.instances.length, 1)
   assert.equal(MockRequest.instances[0].timeoutInterval, 8)
   assert.equal(MockRequest.instances[0].headers.Authorization, undefined)
-  assert.match(MockRequest.instances[0].headers["User-Agent"], /^DeadlineDeck\/1\.7\.0/)
+  assert.match(MockRequest.instances[0].headers["User-Agent"], /^DeadlineDeck\/1\.7\.1/)
   assert.equal(MockNotification.scheduled.length, 1)
   assert.equal(fileContents.get(sandbox.settingsPath), settingsBefore, "update checks must not alter user selections")
   assert.equal(MockNotification.scheduled[0].identifier, "deadlinedeck-update-1-8-0")
@@ -300,14 +301,14 @@ await test("current or older releases on a fresh install never notify", async ()
   fileContents.clear()
   MockNotification.scheduled.length = 0
   nowMs += 7 * 60 * 60 * 1000
-  queueManifest("1.7.0")
+  queueManifest("1.7.1")
   const current = await api.checkForAppUpdate(false, true)
   assert.equal(current.status, "current")
   assert.equal(MockNotification.scheduled.length, 0)
 
   fileContents.clear()
   nowMs += 7 * 60 * 60 * 1000
-  queueManifest("1.6.0")
+  queueManifest("1.7.0")
   const older = await api.checkForAppUpdate(false, true)
   assert.equal(older.status, "current")
   assert.equal(MockNotification.scheduled.length, 0)
@@ -316,14 +317,14 @@ await test("current or older releases on a fresh install never notify", async ()
 await test("a failed live check with a cached current release is reported as an error", async () => {
   fileContents.clear()
   nowMs += 7 * 60 * 60 * 1000
-  queueManifest("1.7.0")
+  queueManifest("1.7.1")
   assert.equal((await api.checkForAppUpdate(false, false)).status, "current")
 
   nowMs += 7 * 60 * 60 * 1000
   MockRequest.responses.push({ status: 503, body: "unavailable" })
   const failed = await api.checkForAppUpdate(false, false)
   assert.equal(failed.status, "error")
-  assert.equal(failed.release.version, "1.7.0")
+  assert.equal(failed.release.version, "1.7.1")
   assert.match(failed.error, /HTTP 503/)
 })
 

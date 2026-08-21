@@ -25,9 +25,9 @@ Colored two-letter badges identify each conference's primary research area.
 For example: ML = Machine Learning, CV = Computer Vision, NL = Natural
 Language Processing, SC = Security, and SP = Speech & Signal Processing.
 
-Deadline rows show static amber bands when the next displayed deadline is
-within 14 days and static red bands when it is within 7 days. In the small
-widget, the bands cover the whole card.
+Deadline rows show a uniform amber background when the next displayed deadline
+is within 14 days and a uniform red background when it is within 7 days. In the
+small widget, the color covers the whole card.
 Edit WARNING_DEADLINE_DAYS and URGENT_DEADLINE_DAYS near the top of the script
 to change these thresholds.
 Use the preview actions inside DeadlineDeck before returning to the Home Screen.
