@@ -64,9 +64,9 @@ const CONFERENCE_AREA_BY_SERIES = {
   siggraph: "CG", acmmm: "MM",
 }
 
-const APP_VERSION = "1.7.3"
+const APP_VERSION = "1.7.4"
 const SETTINGS_SCHEMA_VERSION = 3
-const BUILD_LABEL = "DeadlineDeck 1.7 · Full-Width Rows"
+const BUILD_LABEL = "DeadlineDeck 1.7 · Compact Timing"
 const CACHE_SCHEMA_VERSION = 2
 const CACHE_METADATA_VERSION = 2
 const AI_DATA_URL = "https://aideadlines.nauen-it.de/data/conferences.json"
@@ -1002,14 +1002,9 @@ function addConferenceRow(widget, conf, family) {
 
   const top = row.addStack()
   top.centerAlignContent()
-  // A zero width tells Scriptable to stretch this horizontal stack across the
-  // available row. Without it, nested stacks may shrink-wrap their contents,
-  // leaving unused space on the right while truncating the conference name.
-  top.size = new Size(0, family === "large" ? 18 : 16)
 
-  // Keep identity and timing in separate columns. Scriptable's relative Date
-  // elements may reserve more width than their visible text; isolating them in
-  // a trailing stack lets the conference name use every remaining point.
+  // Keep identity and timing separate. PAPER/ABS already begins the detail line
+  // below, so repeating it here only steals width from long conference names.
   const identity = top.addStack()
   identity.centerAlignContent()
   addConferenceAreaBadge(identity, conf, family)
@@ -1029,10 +1024,6 @@ function addConferenceRow(widget, conf, family) {
   timing.centerAlignContent()
   const milestone = nextMilestone(conf)
   if (milestone) {
-    const milestoneLabel = timing.addText(`${milestone.label} `)
-    milestoneLabel.font = Font.semiboldSystemFont(family === "large" ? 11 : 9)
-    milestoneLabel.textColor = accentColor()
-    milestoneLabel.lineLimit = 1
     const countdown = timing.addDate(milestone.date)
     countdown.applyOffsetStyle()
     countdown.font = Font.semiboldSystemFont(family === "large" ? 11 : 9)

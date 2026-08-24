@@ -2,6 +2,13 @@
 
 All notable DeadlineDeck changes are documented here. Releases follow Semantic Versioning.
 
+## [1.7.4] - 2026-08-24
+
+### Fixed
+
+- Removed the duplicated PAPER/ABS label from the top line of medium and large rows.
+- Kept the milestone label in the detail line while freeing enough width for USENIX Security 2027 and its cycle suffix.
+
 ## [1.7.3] - 2026-08-24
 
 ### Fixed
@@ -43,6 +50,7 @@ First public GitHub release.
 - Signed live deadline offsets use `+` before and `−` after a milestone.
 - Conference-source caches remain independent so one failed feed cannot erase the other.
 
+[1.7.4]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.4
 [1.7.3]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.3
 [1.7.2]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.2
 [1.7.1]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.1
