@@ -2,6 +2,13 @@
 
 All notable DeadlineDeck changes are documented here. Releases follow Semantic Versioning.
 
+## [1.7.3] - 2026-08-24
+
+### Fixed
+
+- Forced the top line of each medium and large row to span the full available width.
+- Removed the unused trailing space that could still truncate USENIX after the 1.7.2 column split.
+
 ## [1.7.2] - 2026-08-24
 
 ### Fixed
@@ -36,6 +43,7 @@ First public GitHub release.
 - Signed live deadline offsets use `+` before and `−` after a milestone.
 - Conference-source caches remain independent so one failed feed cannot erase the other.
 
+[1.7.3]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.3
 [1.7.2]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.2
 [1.7.1]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.1
 [1.7.0]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.0

@@ -64,9 +64,9 @@ const CONFERENCE_AREA_BY_SERIES = {
   siggraph: "CG", acmmm: "MM",
 }
 
-const APP_VERSION = "1.7.2"
+const APP_VERSION = "1.7.3"
 const SETTINGS_SCHEMA_VERSION = 3
-const BUILD_LABEL = "DeadlineDeck 1.7 · Flexible Rows"
+const BUILD_LABEL = "DeadlineDeck 1.7 · Full-Width Rows"
 const CACHE_SCHEMA_VERSION = 2
 const CACHE_METADATA_VERSION = 2
 const AI_DATA_URL = "https://aideadlines.nauen-it.de/data/conferences.json"
@@ -1002,6 +1002,10 @@ function addConferenceRow(widget, conf, family) {
 
   const top = row.addStack()
   top.centerAlignContent()
+  // A zero width tells Scriptable to stretch this horizontal stack across the
+  // available row. Without it, nested stacks may shrink-wrap their contents,
+  // leaving unused space on the right while truncating the conference name.
+  top.size = new Size(0, family === "large" ? 18 : 16)
 
   // Keep identity and timing in separate columns. Scriptable's relative Date
   // elements may reserve more width than their visible text; isolating them in
