@@ -72,6 +72,10 @@ DeadlineDeck reads public data at runtime from:
 
 The source projects are community-maintained and remain responsible for their respective data. DeadlineDeck does not copy full dataset dumps into this repository. Always verify the official conference website before submitting.
 
+## Contact
+
+Missing a conference, noticed incorrect data, or have another suggestion? Contact [Samuele Poppi](mailto:Samuele.poppi@mbzuai.ac.ae) at `Samuele.poppi@mbzuai.ac.ae`.
+
 ## Development
 
 The test suite has no third-party runtime dependencies:
