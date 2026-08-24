@@ -19,7 +19,6 @@ Use the release asset named `DeadlineDeck.zip`. GitHub's automatically generated
 - Venue city, state/region, and country when announced; otherwise `Location TBD`.
 - Two-letter, color-coded research-area badges such as `ML`, `CV`, `NL`, and `SC`.
 - Uniform amber urgency highlighting within 14 days and uniform red highlighting within 7 days.
-- Signed live offsets: `+` before a milestone and `−` briefly after it.
 - Separate last-known-good caches for both data feeds plus vetted offline fallbacks.
 - One local update alert for each newer stable DeadlineDeck release.
 
