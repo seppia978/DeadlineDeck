@@ -2,6 +2,14 @@
 
 All notable DeadlineDeck changes are documented here. Releases follow Semantic Versioning.
 
+## [1.7.8] - 2026-08-24
+
+### Fixed
+
+- Added a dedicated `accessoryRectangular` Lock Screen layout instead of treating it as a three-row medium widget.
+- The Lock Screen widget now shows one readable upcoming conference, its live countdown, and the short official deadline.
+- Home Screen small, medium, and large layouts remain unchanged.
+
 ## [1.7.7] - 2026-08-24
 
 ### Fixed
@@ -71,6 +79,7 @@ First public GitHub release.
 - Signed live deadline offsets use `+` before and `−` after a milestone.
 - Conference-source caches remain independent so one failed feed cannot erase the other.
 
+[1.7.8]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.8
 [1.7.7]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.7
 [1.7.6]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.6
 [1.7.5]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.5

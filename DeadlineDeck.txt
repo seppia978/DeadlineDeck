@@ -64,9 +64,9 @@ const CONFERENCE_AREA_BY_SERIES = {
   siggraph: "CG", acmmm: "MM",
 }
 
-const APP_VERSION = "1.7.7"
+const APP_VERSION = "1.7.8"
 const SETTINGS_SCHEMA_VERSION = 3
-const BUILD_LABEL = "DeadlineDeck 1.7 · Responsive Rows"
+const BUILD_LABEL = "DeadlineDeck 1.7 · Lock Screen Layout"
 const CACHE_SCHEMA_VERSION = 2
 const CACHE_METADATA_VERSION = 2
 const AI_DATA_URL = "https://aideadlines.nauen-it.de/data/conferences.json"
@@ -768,7 +768,7 @@ function parseWidgetPage(value) {
 }
 
 function widgetMaxRows(family) {
-  if (family === "small") return 1
+  if (family === "small" || family === "accessoryRectangular") return 1
   const configured = family === "large" ? MAX_N_ROWS : MEDIUM_WIDGET_MAX_N_ROWS
   const fallback = family === "large" ? 6 : 3
   const parsed = Math.floor(Number(configured))
@@ -945,6 +945,12 @@ async function makeWidget(dataResult, settings, family, requestedPage) {
   widget.setPadding(12, 14, 10, 14)
   const sortedUpcoming = selectedUpcoming(dataResult, settings)
   widget.refreshAfterDate = nextWidgetRefreshDate(sortedUpcoming)
+
+  if (family === "accessoryRectangular") {
+    addAccessoryRectangularWidget(widget, sortedUpcoming[0] || null, settings)
+    return widget
+  }
+
   const pageSize = widgetMaxRows(family)
   const totalPages = Math.max(1, Math.ceil(sortedUpcoming.length / pageSize))
   const page = Math.min(Math.max(1, requestedPage || 1), totalPages)
@@ -983,6 +989,79 @@ async function makeWidget(dataResult, settings, family, requestedPage) {
   }
 
   return widget
+}
+
+function addAccessoryRectangularWidget(widget, conf, settings) {
+  widget.setPadding(2, 4, 2, 4)
+  widget.addAccessoryWidgetBackground = true
+
+  if (!settings.selectedSeries.length) {
+    const title = widget.addText("DeadlineDeck")
+    title.font = Font.boldSystemFont(11)
+    title.textColor = primaryColor()
+    title.lineLimit = 1
+    widget.addSpacer(2)
+    const detail = widget.addText("Open the app to select conferences")
+    detail.font = Font.systemFont(8)
+    detail.textColor = secondaryColor()
+    detail.lineLimit = 2
+    detail.minimumScaleFactor = 0.7
+    return
+  }
+
+  if (!conf) {
+    const title = widget.addText("DeadlineDeck")
+    title.font = Font.boldSystemFont(11)
+    title.textColor = primaryColor()
+    title.lineLimit = 1
+    widget.addSpacer(2)
+    const detail = widget.addText("Deadline data unavailable")
+    detail.font = Font.systemFont(9)
+    detail.textColor = secondaryColor()
+    detail.lineLimit = 1
+    return
+  }
+
+  widget.url = safeURL(conf.website)
+  const roundSuffix = conf.roundLabel ? ` · ${conf.roundLabel}` : ""
+  const name = widget.addText(`${conf.shortname || conf.title || "Conference"}${roundSuffix}`)
+  name.font = Font.boldSystemFont(10)
+  name.textColor = primaryColor()
+  name.lineLimit = 1
+  name.minimumScaleFactor = 0.65
+
+  widget.addSpacer(2)
+  const milestone = nextMilestone(conf)
+  if (!milestone) {
+    const tbd = widget.addText("Deadline not announced yet")
+    tbd.font = Font.semiboldSystemFont(9)
+    tbd.textColor = secondaryColor()
+    tbd.lineLimit = 1
+    tbd.minimumScaleFactor = 0.7
+    return
+  }
+
+  const timing = widget.addStack()
+  timing.centerAlignContent()
+  const label = timing.addText(milestone.label)
+  label.font = Font.semiboldSystemFont(8)
+  label.textColor = secondaryColor()
+  label.lineLimit = 1
+  timing.addSpacer(4)
+  const countdown = timing.addDate(milestone.date)
+  countdown.applyOffsetStyle()
+  countdown.font = Font.boldSystemFont(10)
+  countdown.textColor = accentColor()
+  countdown.lineLimit = 1
+  countdown.minimumScaleFactor = 0.7
+  timing.addSpacer()
+
+  widget.addSpacer(1)
+  const date = widget.addText(`${conf.approximate ? "~ " : ""}${formatDeadlineShort(milestone.date, conf.timezone)}`)
+  date.font = Font.systemFont(8)
+  date.textColor = tertiaryColor()
+  date.lineLimit = 1
+  date.minimumScaleFactor = 0.75
 }
 
 function addHeader(widget, dataResult, shownCount, page, totalPages) {

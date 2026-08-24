@@ -74,7 +74,7 @@ class MockWidgetNode {
   addSpacer() {}
   centerAlignContent() {}
   layoutVertically() {}
-  setPadding() {}
+  setPadding(...values) { this.padding = values }
 }
 
 class MockListWidget extends MockWidgetNode {
@@ -180,8 +180,21 @@ await test("the user-facing row limits are editable constants at the beginning o
 await test("one helper maps widget families to their effective row limits", () => {
   assert.equal(typeof api.widgetMaxRows, "function")
   assert.equal(api.widgetMaxRows("small"), 1, "small has a dedicated one-deadline layout")
+  assert.equal(api.widgetMaxRows("accessoryRectangular"), 1, "Lock Screen rectangular shows one readable deadline")
   assert.equal(api.widgetMaxRows("medium"), 3)
   assert.equal(api.widgetMaxRows("large"), 6)
+})
+
+await test("Lock Screen rectangular uses a dedicated single-deadline layout", async () => {
+  const { dataResult, settings } = widgetFixture()
+  const accessory = await api.makeWidget(dataResult, settings, "accessoryRectangular", 1)
+  assert.deepEqual(accessory.padding, [2, 4, 2, 4])
+  assert.equal(accessory.addAccessoryWidgetBackground, true)
+  assert.equal(renderedConferenceNames(accessory).length, 1)
+  assert.equal(accessory.tracker.dates.length, 1, "the Lock Screen countdown remains live")
+  assert.ok(accessory.tracker.texts.some(item => item.value === "PAPER"))
+  assert.ok(accessory.tracker.texts.some(item => /local$/.test(item.value)))
+  assert.ok(!accessory.tracker.texts.some(item => item.value === "UPCOMING DEADLINES"))
 })
 
 await test("makeWidget obtains its page size from the helper instead of hardcoded family values", () => {
