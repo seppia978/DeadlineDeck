@@ -64,9 +64,9 @@ const CONFERENCE_AREA_BY_SERIES = {
   siggraph: "CG", acmmm: "MM",
 }
 
-const APP_VERSION = "1.7.6"
+const APP_VERSION = "1.7.7"
 const SETTINGS_SCHEMA_VERSION = 3
-const BUILD_LABEL = "DeadlineDeck 1.7 · Leading-Aligned Rows"
+const BUILD_LABEL = "DeadlineDeck 1.7 · Responsive Rows"
 const CACHE_SCHEMA_VERSION = 2
 const CACHE_METADATA_VERSION = 2
 const AI_DATA_URL = "https://aideadlines.nauen-it.de/data/conferences.json"
@@ -775,6 +775,16 @@ function widgetMaxRows(family) {
   return Number.isFinite(parsed) && parsed >= 1 ? parsed : fallback
 }
 
+function conferenceIdentityWidth(screenSizeValue) {
+  const screen = screenSizeValue || (
+    typeof Device !== "undefined" && typeof Device.screenSize === "function"
+      ? Device.screenSize()
+      : { width: 393, height: 852 }
+  )
+  const shortSide = Math.min(Number(screen.width), Number(screen.height))
+  return Math.max(180, Math.min(220, Math.round(shortSide * 0.56)))
+}
+
 function deadlineUrgency(conference, nowValue) {
   const suppliedNow = nowValue instanceof Date ? nowValue.getTime() : Number(nowValue)
   const now = Number.isFinite(suppliedNow) ? suppliedNow : Date.now()
@@ -1009,7 +1019,7 @@ function addConferenceRow(widget, conf, family) {
   identity.centerAlignContent()
   // Positive width is intentional: unlike zero/automatic sizing, it gives the
   // name the unused trailing room that Scriptable does not redistribute.
-  identity.size = new Size(220, 0)
+  identity.size = new Size(conferenceIdentityWidth(), 0)
   addConferenceAreaBadge(identity, conf, family)
   identity.addSpacer(5)
   const roundSuffix = conf.roundLabel ? ` · ${conf.roundLabel}` : ""

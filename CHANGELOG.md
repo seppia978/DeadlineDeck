@@ -2,6 +2,13 @@
 
 All notable DeadlineDeck changes are documented here. Releases follow Semantic Versioning.
 
+## [1.7.7] - 2026-08-24
+
+### Fixed
+
+- Replaced the fixed conference-identity width with a clamped value derived from the device's logical short screen side.
+- Preserved the validated 220-point layout on iPhone 15 Pro while reducing the column on narrower iPhones and capping it on larger devices.
+
 ## [1.7.6] - 2026-08-24
 
 ### Fixed
@@ -64,6 +71,7 @@ First public GitHub release.
 - Signed live deadline offsets use `+` before and `−` after a milestone.
 - Conference-source caches remain independent so one failed feed cannot erase the other.
 
+[1.7.7]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.7
 [1.7.6]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.6
 [1.7.5]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.5
 [1.7.4]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.4

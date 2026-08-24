@@ -30,6 +30,7 @@ globalThis.__deadlineDeckRowsTestAPI = {
   maxRows: typeof MAX_N_ROWS === "undefined" ? null : MAX_N_ROWS,
   mediumMaxRows: typeof MEDIUM_WIDGET_MAX_N_ROWS === "undefined" ? null : MEDIUM_WIDGET_MAX_N_ROWS,
   widgetMaxRows: typeof widgetMaxRows === "function" ? widgetMaxRows : null,
+  conferenceIdentityWidth: typeof conferenceIdentityWidth === "function" ? conferenceIdentityWidth : null,
   makeWidget,
   presentInfo,
 }
@@ -106,6 +107,7 @@ const sandbox = {
   URL,
   Alert: MockAlert,
   Color: MockColor,
+  Device: { screenSize: () => ({ width: 393, height: 852 }) },
   Font: {
     boldSystemFont: mockFont,
     semiboldSystemFont: mockFont,
@@ -197,7 +199,7 @@ await test("conference identity does not compete with a duplicated milestone lab
     source.indexOf("function addEmptyState"),
   )
   assert.match(rowSource, /const identity\s*=\s*top\.addStack\(\)/)
-  assert.match(rowSource, /identity\.size\s*=\s*new Size\(220, 0\)/)
+  assert.match(rowSource, /identity\.size\s*=\s*new Size\(conferenceIdentityWidth\(\), 0\)/)
   assert.doesNotMatch(rowSource, /identity\.size\s*=\s*new Size\(0,/)
   assert.match(rowSource, /addConferenceAreaBadge\(identity, conf, family\)/)
   assert.match(rowSource, /const name\s*=\s*identity\.addText/)
@@ -209,6 +211,14 @@ await test("conference identity does not compete with a duplicated milestone lab
   assert.doesNotMatch(rowSource, /const milestoneLabel/)
   assert.match(rowSource, /detail\s*=\s*`\$\{milestone\.label\}/)
   assert.doesNotMatch(rowSource, /top\.addDate\(milestone\.date\)/)
+})
+
+await test("conference identity width adapts to the logical screen width", () => {
+  assert.equal(api.conferenceIdentityWidth({ width: 393, height: 852 }), 220, "iPhone 15 Pro keeps the validated width")
+  assert.equal(api.conferenceIdentityWidth({ width: 375, height: 812 }), 210, "narrower iPhones receive a smaller identity column")
+  assert.equal(api.conferenceIdentityWidth({ width: 430, height: 932 }), 220, "Pro Max devices respect the upper bound")
+  assert.equal(api.conferenceIdentityWidth({ width: 320, height: 568 }), 180, "very narrow legacy screens respect the lower bound")
+  assert.equal(api.conferenceIdentityWidth({ width: 768, height: 1024 }), 220, "iPads do not enlarge the timing offset unnecessarily")
 })
 
 await test("a large widget renders six conferences per page", async () => {
