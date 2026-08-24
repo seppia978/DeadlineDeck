@@ -1,6 +1,6 @@
 {
   "name": "deadlinedeck",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "private": true,
   "description": "Academic conference deadline widgets for Scriptable",
   "scripts": {

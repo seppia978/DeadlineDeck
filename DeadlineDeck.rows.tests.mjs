@@ -191,6 +191,21 @@ await test("makeWidget obtains its page size from the helper instead of hardcode
   assert.doesNotMatch(makeWidgetSource, /const pageSize\s*=\s*family/)
 })
 
+await test("conference identity uses the remaining width before an isolated timing column", () => {
+  const rowSource = source.slice(
+    source.indexOf("function addConferenceRow"),
+    source.indexOf("function addEmptyState"),
+  )
+  assert.match(rowSource, /const identity\s*=\s*top\.addStack\(\)/)
+  assert.match(rowSource, /addConferenceAreaBadge\(identity, conf, family\)/)
+  assert.match(rowSource, /const name\s*=\s*identity\.addText/)
+  assert.match(rowSource, /top\.addSpacer\(\)\s*\n\s*top\.addSpacer\(6\)/)
+  assert.match(rowSource, /const timing\s*=\s*top\.addStack\(\)/)
+  assert.match(rowSource, /timing\.addText\(`\$\{milestone\.label\} `\)/)
+  assert.match(rowSource, /timing\.addDate\(milestone\.date\)/)
+  assert.doesNotMatch(rowSource, /top\.addDate\(milestone\.date\)/)
+})
+
 await test("a large widget renders six conferences per page", async () => {
   const { dataResult, settings } = widgetFixture()
   const firstPage = await api.makeWidget(dataResult, settings, "large", 1)

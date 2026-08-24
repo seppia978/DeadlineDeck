@@ -64,9 +64,9 @@ const CONFERENCE_AREA_BY_SERIES = {
   siggraph: "CG", acmmm: "MM",
 }
 
-const APP_VERSION = "1.7.1"
+const APP_VERSION = "1.7.2"
 const SETTINGS_SCHEMA_VERSION = 3
-const BUILD_LABEL = "DeadlineDeck 1.7 · Solid Highlights"
+const BUILD_LABEL = "DeadlineDeck 1.7 · Flexible Rows"
 const CACHE_SCHEMA_VERSION = 2
 const CACHE_METADATA_VERSION = 2
 const AI_DATA_URL = "https://aideadlines.nauen-it.de/data/conferences.json"
@@ -1002,29 +1002,41 @@ function addConferenceRow(widget, conf, family) {
 
   const top = row.addStack()
   top.centerAlignContent()
-  addConferenceAreaBadge(top, conf, family)
-  top.addSpacer(5)
+
+  // Keep identity and timing in separate columns. Scriptable's relative Date
+  // elements may reserve more width than their visible text; isolating them in
+  // a trailing stack lets the conference name use every remaining point.
+  const identity = top.addStack()
+  identity.centerAlignContent()
+  addConferenceAreaBadge(identity, conf, family)
+  identity.addSpacer(5)
   const roundSuffix = conf.roundLabel ? ` · ${conf.roundLabel}` : ""
-  const name = top.addText(`${conf.shortname || conf.title || "Conference"}${roundSuffix}`)
+  const name = identity.addText(`${conf.shortname || conf.title || "Conference"}${roundSuffix}`)
   name.font = Font.boldSystemFont(family === "large" ? 13 : 11)
   name.textColor = primaryColor()
   name.lineLimit = 1
   name.minimumScaleFactor = 0.75
+
+  // The flexible spacer absorbs only genuinely unused width. The fixed spacer
+  // preserves a readable minimum gap when a long name reaches the timing column.
+  top.addSpacer()
   top.addSpacer(6)
+  const timing = top.addStack()
+  timing.centerAlignContent()
   const milestone = nextMilestone(conf)
   if (milestone) {
-    const milestoneLabel = top.addText(`${milestone.label} `)
+    const milestoneLabel = timing.addText(`${milestone.label} `)
     milestoneLabel.font = Font.semiboldSystemFont(family === "large" ? 11 : 9)
     milestoneLabel.textColor = accentColor()
     milestoneLabel.lineLimit = 1
-    const countdown = top.addDate(milestone.date)
+    const countdown = timing.addDate(milestone.date)
     countdown.applyOffsetStyle()
     countdown.font = Font.semiboldSystemFont(family === "large" ? 11 : 9)
     countdown.textColor = accentColor()
     countdown.lineLimit = 1
     countdown.minimumScaleFactor = 0.65
   } else {
-    const countdown = top.addText("TBD")
+    const countdown = timing.addText("TBD")
     countdown.font = Font.semiboldSystemFont(family === "large" ? 11 : 9)
     countdown.textColor = new Color("E08B36")
     countdown.lineLimit = 1

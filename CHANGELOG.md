@@ -2,6 +2,13 @@
 
 All notable DeadlineDeck changes are documented here. Releases follow Semantic Versioning.
 
+## [1.7.2] - 2026-08-24
+
+### Fixed
+
+- Split each conference row into a flexible identity column and a compact trailing timing column.
+- Conference names such as USENIX now use all space remaining before the milestone and countdown instead of truncating prematurely.
+
 ## [1.7.1] - 2026-08-21
 
 ### Changed
@@ -29,5 +36,6 @@ First public GitHub release.
 - Signed live deadline offsets use `+` before and `−` after a milestone.
 - Conference-source caches remain independent so one failed feed cannot erase the other.
 
+[1.7.2]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.2
 [1.7.1]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.1
 [1.7.0]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.0
