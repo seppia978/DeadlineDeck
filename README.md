@@ -2,6 +2,8 @@
 
 DeadlineDeck is a Scriptable widget for tracking academic conference deadlines on iPhone and iPad. It combines AI/ML and security conference feeds, keeps a last-known-good offline cache, and highlights urgent milestones without hiding the official time zone.
 
+![DeadlineDeck large widget showing upcoming conference deadlines](assets/deadlinedeck-widget.jpeg)
+
 ## Download
 
 Download the latest installable package:
