@@ -64,9 +64,9 @@ const CONFERENCE_AREA_BY_SERIES = {
   siggraph: "CG", acmmm: "MM",
 }
 
-const APP_VERSION = "1.7.4"
+const APP_VERSION = "1.7.5"
 const SETTINGS_SCHEMA_VERSION = 3
-const BUILD_LABEL = "DeadlineDeck 1.7 · Compact Timing"
+const BUILD_LABEL = "DeadlineDeck 1.7 · Fixed Identity Width"
 const CACHE_SCHEMA_VERSION = 2
 const CACHE_METADATA_VERSION = 2
 const AI_DATA_URL = "https://aideadlines.nauen-it.de/data/conferences.json"
@@ -1007,6 +1007,9 @@ function addConferenceRow(widget, conf, family) {
   // below, so repeating it here only steals width from long conference names.
   const identity = top.addStack()
   identity.centerAlignContent()
+  // Positive width is intentional: unlike zero/automatic sizing, it gives the
+  // name the unused trailing room that Scriptable does not redistribute.
+  identity.size = new Size(220, 0)
   addConferenceAreaBadge(identity, conf, family)
   identity.addSpacer(5)
   const roundSuffix = conf.roundLabel ? ` · ${conf.roundLabel}` : ""

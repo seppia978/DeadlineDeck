@@ -197,6 +197,8 @@ await test("conference identity does not compete with a duplicated milestone lab
     source.indexOf("function addEmptyState"),
   )
   assert.match(rowSource, /const identity\s*=\s*top\.addStack\(\)/)
+  assert.match(rowSource, /identity\.size\s*=\s*new Size\(220, 0\)/)
+  assert.doesNotMatch(rowSource, /identity\.size\s*=\s*new Size\(0,/)
   assert.match(rowSource, /addConferenceAreaBadge\(identity, conf, family\)/)
   assert.match(rowSource, /const name\s*=\s*identity\.addText/)
   assert.match(rowSource, /top\.addSpacer\(\)\s*\n\s*top\.addSpacer\(6\)/)

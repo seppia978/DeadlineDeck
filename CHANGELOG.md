@@ -2,6 +2,13 @@
 
 All notable DeadlineDeck changes are documented here. Releases follow Semantic Versioning.
 
+## [1.7.5] - 2026-08-24
+
+### Fixed
+
+- Assigned the conference-identity block a positive 220-point width in medium and large rows.
+- Prevented Scriptable's automatic stack sizing from truncating the USENIX cycle label while leaving unused space after the countdown.
+
 ## [1.7.4] - 2026-08-24
 
 ### Fixed
@@ -50,6 +57,7 @@ First public GitHub release.
 - Signed live deadline offsets use `+` before and `−` after a milestone.
 - Conference-source caches remain independent so one failed feed cannot erase the other.
 
+[1.7.5]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.5
 [1.7.4]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.4
 [1.7.3]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.3
 [1.7.2]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.2
