@@ -64,9 +64,9 @@ const CONFERENCE_AREA_BY_SERIES = {
   siggraph: "CG", acmmm: "MM",
 }
 
-const APP_VERSION = "1.7.5"
+const APP_VERSION = "1.7.6"
 const SETTINGS_SCHEMA_VERSION = 3
-const BUILD_LABEL = "DeadlineDeck 1.7 · Fixed Identity Width"
+const BUILD_LABEL = "DeadlineDeck 1.7 · Leading-Aligned Rows"
 const CACHE_SCHEMA_VERSION = 2
 const CACHE_METADATA_VERSION = 2
 const AI_DATA_URL = "https://aideadlines.nauen-it.de/data/conferences.json"
@@ -1018,10 +1018,11 @@ function addConferenceRow(widget, conf, family) {
   name.textColor = primaryColor()
   name.lineLimit = 1
   name.minimumScaleFactor = 0.75
+  // Short names stay pinned to the same leading edge as long names.
+  identity.addSpacer()
 
-  // The flexible spacer absorbs only genuinely unused width. The fixed spacer
-  // preserves a readable minimum gap when a long name reaches the timing column.
-  top.addSpacer()
+  // Keep a readable gap before the timing column. The flexible spacer belongs
+  // after timing so the whole identity/timing group remains leading-aligned.
   top.addSpacer(6)
   const timing = top.addStack()
   timing.centerAlignContent()
@@ -1039,6 +1040,7 @@ function addConferenceRow(widget, conf, family) {
     countdown.textColor = new Color("E08B36")
     countdown.lineLimit = 1
   }
+  top.addSpacer()
 
   row.addSpacer(1)
   const bottom = row.addStack()

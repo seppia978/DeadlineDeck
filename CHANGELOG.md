@@ -2,6 +2,13 @@
 
 All notable DeadlineDeck changes are documented here. Releases follow Semantic Versioning.
 
+## [1.7.6] - 2026-08-24
+
+### Fixed
+
+- Pinned short conference names to the leading edge of the fixed identity column.
+- Moved flexible trailing space after the countdown so badges, names, and timing columns align consistently across rows.
+
 ## [1.7.5] - 2026-08-24
 
 ### Fixed
@@ -57,6 +64,7 @@ First public GitHub release.
 - Signed live deadline offsets use `+` before and `−` after a milestone.
 - Conference-source caches remain independent so one failed feed cannot erase the other.
 
+[1.7.6]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.6
 [1.7.5]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.5
 [1.7.4]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.4
 [1.7.3]: https://github.com/seppia978/DeadlineDeck/releases/tag/v1.7.3
